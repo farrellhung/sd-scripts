@@ -1011,7 +1011,17 @@ class LoRANetwork(torch.nn.Module):
 
     # 二つのText Encoderに別々の学習率を設定できるようにするといいかも
     def prepare_optimizer_params(self, text_encoder_lr, unet_lr, default_lr):
-        self.requires_grad_(True)
+        if self.network_type == "sborafa":
+            for n,p in self.named_parameters():
+                if 'lora_down' not in n:
+                    p.requires_grad_(True)
+        elif self.network_type == "sborafb":
+            for n,p in self.named_parameters():
+                if 'lora_up' not in n:
+                    p.requires_grad_(True)
+        else:
+            self.requires_grad_(True)
+        
         all_params = []
 
         def enumerate_params(loras):
@@ -1059,6 +1069,16 @@ class LoRANetwork(torch.nn.Module):
     def enable_gradient_checkpointing(self):
         # not supported
         pass
+    
+    def prepare_grad_etc_sborafa(self, text_encoder, unet):
+        for n,p in self.named_parameters():
+            if 'lora_down' not in n:
+                p.requires_grad_(True)
+
+    def prepare_grad_etc_sborafb(self, text_encoder, unet):
+        for n,p in self.named_parameters():
+            if 'lora_up' not in n:
+                p.requires_grad_(True)
 
     def prepare_grad_etc(self, text_encoder, unet):
         self.requires_grad_(True)
