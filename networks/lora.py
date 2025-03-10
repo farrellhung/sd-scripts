@@ -1011,7 +1011,7 @@ class LoRANetwork(torch.nn.Module):
 
     # 二つのText Encoderに別々の学習率を設定できるようにするといいかも
     def prepare_optimizer_params(self, text_encoder_lr, unet_lr, default_lr):
-        if self.network_type == "sborafa":
+        if self.network_type == "sborafa" or self.network_type == "csborafa":
             for n,p in self.named_parameters():
                 if 'lora_down' not in n:
                     p.requires_grad_(True)
